@@ -44,34 +44,51 @@ abstract class DataWriter
         return $this->pretty_print;
     }
 
-    public function write($data, $file_handle === null)
+    public function write($data, $file_handle = null)
     {
         if (!is_array_like($data))
             throw new InvalidArgumentException("Data should be array or array-like");
 
         if ($file_handle === null)
         {
+            $file_name = null;
             $file_handle = fopen('php://memory', 'rw');
             $opened = true;
             $start_pos = 0;
         }
-        else
+        elseif (is_string($file_handle))
         {
-            if (!is_resource($file_handle))
-                throw new InvalidArgumentException("File handle should be a resource of an opened file");
-
+            $file_name = $file_handle;
+            $file_handle = fopen($file_handle, 'rw'); 
+            $opened = true;
+            $start_pos = 0;
+        }
+        elseif (!is_resource($file_handle))
+        {
+            $file_name = null;
             $opened = false;
             $start_pos = ftell($file_handle);
         }
+        else
+            throw new InvalidArgumentException("Argument 2 should be a file name or a resource of an opened file");
 
         $this->format($data, $file_handle);
 
         $length = ftell($file_handle);
         if ($opened)
         {
-            fseek($this->file_handle, 0);
-            $formatted = fread($this->file_handle, $length);
-            fclose($this->file_handle);
+            if ($file_name)
+            {
+                fclose($file_handle);
+                $f = new File($created);
+                $f->setPermissions();
+            }
+            else
+            {
+                fseek($this->file_handle, 0);
+                $formatted = fread($this->file_handle, $length);
+                fclose($this->file_handle);
+            }
 
             return $formatted;
         }

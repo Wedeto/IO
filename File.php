@@ -211,6 +211,11 @@ class File
 
     public function setPermissions()
     {
+        $current_uid = posix_getuid();
+        $owner = @fileowner($this->path);
+        if ($current_uid !== $owner)
+            return;
+
         if (self::$file_group)
         {
             $current_gid = filegroup($this->path);
@@ -224,7 +229,9 @@ class File
                 }
                 catch (Throwable $e)
                 {
-                    throw new PermissionError($this->path, "Could not set group");
+                    throw new IOException(
+                        "Could not set group on " . $this->path . " to " . self::$file_group
+                    );
                 }
             }
         }
@@ -243,7 +250,9 @@ class File
                 }
                 catch (Throwable $e)
                 {
-                    throw new PermissionError($this->path, "Could not set mode");
+                    throw new IOException(
+                        "Could not set mode on " . $this->path . " to " . $wanted_mode
+                    );
                 }
             }
         }
