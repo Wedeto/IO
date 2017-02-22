@@ -23,14 +23,33 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP\IO\DataReader;
 
-use WASP\JSON;
-
-class JSONWriter extends DataWriter
+class DataReaderFactory
 {
-    public function format($data, $file_handle)
+    public static function factory(string $file_name)
     {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
+        $ext_pos = strpos($file_name, ".");
+        if ($ext_pos === false)
+            throw new \RuntimeException("File has no extension: $file_name");
+
+        $ext = strtolower(substr($file_name, $ext_pos + 1));
+
+        switch ($ext)
+        {
+            case "csv":
+                return new CSVReader;
+            case "ini";
+                return new INIReader;
+            case "json":
+                return new JSONReader;
+            case "phps":
+                return new PHPSReader;
+            case "xml":
+                return new XMLReader;
+            case "yaml":
+                return new YAMLReader;
+        }
+        throw new \DomainException("Unsupported file format: $ext");
     }
 }

@@ -42,6 +42,7 @@ class File
 
     private static $file_group = null;
     private static $file_mode = null;
+    private static $dir_mode = null;
 
     const OWNER_READ = 0400;
     const OWNER_WRITE = 0200;
@@ -74,7 +75,7 @@ class File
         }
         else
         {
-            $this->basename = $name;
+            $this->basename = $this->filename;
             $this->ext = null;
         }
     }
@@ -87,6 +88,11 @@ class File
     public static function setFileMode(int $mode)
     {
         self::$file_mode = $mode;
+    }
+
+    public static function setDirMode(int $mode)
+    {
+        self::$dir_mode = $mode;
     }
     
     public static function getPermissions($path)
@@ -211,6 +217,8 @@ class File
 
     public function setPermissions()
     {
+        $is_dir = is_dir($this->path);
+
         $current_uid = posix_getuid();
         $owner = @fileowner($this->path);
         if ($current_uid !== $owner)
@@ -236,10 +244,10 @@ class File
             }
         }
         
-        if (isset(self::$file_mode))
+        $wanted_mode = $is_dir ? self::$dir_mode : self::$file_mode;
+        if (!empty($wanted_mode))
         {
             $perms = self::getPermissions($this->path);
-            $wanted_mode = self::$file_mode;
             $current_mode = $perms['mode'];
             
             if ($wanted_mode !== $current_mode)

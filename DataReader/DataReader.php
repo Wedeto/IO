@@ -23,14 +23,11 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP\IO\DataReader;
 
-use WASP\JSON;
-
-class JSONWriter extends DataWriter
+abstract class DataReader
 {
-    public function format($data, $file_handle)
-    {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
-    }
+    abstract public function readFile(string $file_name);
+    abstract public function readString(string $data);
+    abstract public function readFileHandle($file_handle);
 }

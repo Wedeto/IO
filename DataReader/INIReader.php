@@ -23,14 +23,31 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP\IO\DataReader;
 
-use WASP\JSON;
+use WASP\IOException;
 
-class JSONWriter extends DataWriter
+class INIReader extends DataReader
 {
-    public function format($data, $file_handle)
+    public function readFile(string $file_name)
     {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
+        return parse_ini_file($file_name, INI_SCANNER_TYPED);
+    }
+
+    public function readFileHandle($file_handle)
+    {
+        if (!is_resource($file_handle))
+            throw new \InvalidArgumentException("No file handle was provided");
+
+        $contents = "";
+        while (!feof($file_handle))
+            $contents .= fread($file_handle, 8192);
+
+        return $this->readString($contents);
+    }
+
+    public function readString(string $data)
+    {
+        return parse_ini_string($data, true, INI_SCANNER_TYPED);
     }
 }

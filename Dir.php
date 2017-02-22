@@ -35,8 +35,6 @@ use WASP\Path;
 class Dir implements Iterator
 {
     private static $required_prefix = "";
-    private static $dir_group = null;
-    private static $dir_mode = 0770;
 
     /** 
      * Security measure that prevents attempts of removing files outside of WASP
@@ -46,16 +44,6 @@ class Dir implements Iterator
     public static function setRequiredPrefix($prefix)
     {
         self::$required_prefix = $prefix;
-    }
-
-    public static function setDirGroup(string $group)
-    {
-        self::$dir_group = $group;
-    }
-
-    public static function setDirMode(int $mode)
-    {
-        self::$dir_mode = $mode;
     }
 
     /**
@@ -75,9 +63,8 @@ class Dir implements Iterator
             if (!is_dir($path))
             {
                 mkdir($path);
-                chmod($path, self::$dir_mode);
-                if (self::$dir_group !== null)
-                    chgrp($path, self::$dir_group);
+                $f = new File($path);
+                $f->setPermissions();
             }
         }
     }
@@ -211,20 +198,10 @@ class Dir implements Iterator
         return !empty($this->cur_entry);
     }
 
-    public static function checkPermissions($path, $file_mode, $dir_mode, $group)
+    public function setPermissions()
     {
-        $owner = fileowner($path);
-        $current = posix_getuid();
-
-        if ($owner !== $current)
-            return;
-
-        $dir = new Dir($path, Dir::READ_ALL);
-        foreach ($dir as $entry)
-        {
-            $full_path = $path . '/' . $entry;
-            echo $full_path;
-        }
+        $f = new File($this->path);
+        return $f->setPermissions();
     }
 }
 

@@ -23,14 +23,38 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP\IO\DataReader;
 
-use WASP\JSON;
+use WASP\IOException;
+use function WASP\call_error_exception;
 
-class JSONWriter extends DataWriter
+class YAMLReader extends DataReader
 {
-    public function format($data, $file_handle)
+    public function readFile(string $file_name)
     {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
+        return call_error_exception(function () use ($file_name) {
+			return yaml_parse_file($file_name);
+		});
+    }
+
+    public function readFileHandle($file_handle)
+    {
+        if (!is_resource($file_handle))
+            throw new \InvalidArgumentException("No file handle was provided");
+
+        $contents = "";
+        while (!feof($file_handle))
+            $contents .= fread($file_handle, 8192);
+
+        return $this->readString($contents);
+    }
+
+    public function readString(string $data)
+    {
+        return call_error_exception(function () use ($data) {
+                return yaml_parse($data);
+		});
     }
 }
+
+\WASP\check_extension('yaml', null, 'yaml_parse');

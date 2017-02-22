@@ -36,4 +36,4 @@ class YAMLWriter extends DataWriter
     }
 }
 
-check_extension('yaml', 'yaml_emit');
+\WASP\check_extension('yaml', null, 'yaml_emit');

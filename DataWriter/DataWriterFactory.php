@@ -25,12 +25,31 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataWriter;
 
-use WASP\JSON;
-
-class JSONWriter extends DataWriter
+class DataWriterFactory
 {
-    public function format($data, $file_handle)
+    public static function factory(string $file_name)
     {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
+        $ext_pos = strpos($file_name, ".");
+        if ($ext_pos === false)
+            throw new \RuntimeException("File has no extension: $file_name");
+
+        $ext = strtolower(substr($file_name, $ext_pos + 1));
+
+        switch ($ext)
+        {
+            case "csv":
+                return new CSVWriter;
+            case "json":
+                return new JSONWriter;
+            case "phps":
+                return new PHPSWriter;
+            case "xml":
+                return new XMLWriter;
+            case "yaml":
+                return new YAMLWriter;
+            case "ini":
+                return new INIWriter;
+        }
+        throw new \DomainException("Unsupported file format: $ext");
     }
 }

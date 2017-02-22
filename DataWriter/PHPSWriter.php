@@ -25,12 +25,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataWriter;
 
-use WASP\JSON;
-
-class JSONWriter extends DataWriter
+class PHPSWriter extends DataWriter
 {
     public function format($data, $file_handle)
     {
-        JSON::writeJSON($file_handle, $data, $this->pretty_print);
+        fwrite($file_handle, serialize($data));
     }
 }
