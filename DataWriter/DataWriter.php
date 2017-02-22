@@ -25,6 +25,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataWriter;
 
+use WASP\IO\File;
+use function WASP\is_array_like;
+
 abstract class DataWriter
 {
     protected $pretty_print;
@@ -59,7 +62,7 @@ abstract class DataWriter
         elseif (is_string($file_handle))
         {
             $file_name = $file_handle;
-            $file_handle = fopen($file_handle, 'rw'); 
+            $file_handle = fopen($file_handle, 'w'); 
             $opened = true;
             $start_pos = 0;
         }
@@ -80,7 +83,7 @@ abstract class DataWriter
             if ($file_name)
             {
                 fclose($file_handle);
-                $f = new File($created);
+                $f = new File($file_name);
                 $f->setPermissions();
             }
             else
@@ -88,9 +91,8 @@ abstract class DataWriter
                 fseek($this->file_handle, 0);
                 $formatted = fread($this->file_handle, $length);
                 fclose($this->file_handle);
+                return $formatted;
             }
-
-            return $formatted;
         }
 
         return $length - $start_pos;

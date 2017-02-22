@@ -25,6 +25,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataWriter;
 
+use function WASP\to_array;
+use function WASP\is_array_like;
+use function WASP\is_int_val;
+
 /**
  * The INI-file class writes INI-files. If the INI-file exists,
  * it will be read to extract the comments and re-adds these comments
@@ -32,14 +36,31 @@ namespace WASP\IO\DataWriter;
  */
 class INIWriter extends DataWriter
 {
+    private $previous_contents;
+
+    public function rewrite($data, $file_name)
+    {
+        $this->previous_contents = "";
+        if (file_exists($file_name))
+            $this->previous_contents = file_get_contents($file_name);
+
+        $file_handle = fopen($file_name, "w");
+        if (!$file_handle)
+            throw new IOException("Could not open $file_name for writing");
+        $this->format($data, $file_handle);
+        $bytes = ftell($file_handle);
+        return $bytes;
+    }
+
     protected function format($data, $file_handle)
     {
         // First read current data from file
-        $pos = ftell($file_handle);
         $contents = "";
-        while (!feof($file_handle))
-            $contents .= fread($file_handle);
-        fseek($file_handle, $pos);
+        if ($this->previous_contents !== null)
+        {
+            $contents = $this->previous_contents;
+            $this->previous_contents = null;
+        }
         
         // Attempt to write config without removing comments
         $lines = explode("\n", $contents);
@@ -97,7 +118,7 @@ class INIWriter extends DataWriter
             if ($first)
                 $first = false;
             else
-                $new_contents .= "\n";
+                fwrite($file_handle, "\n");
 
             $parameters = to_array($parameters);
 
