@@ -66,14 +66,14 @@ abstract class DataWriter
             $opened = true;
             $start_pos = 0;
         }
-        elseif (!is_resource($file_handle))
+        elseif (is_resource($file_handle))
         {
             $file_name = null;
             $opened = false;
             $start_pos = ftell($file_handle);
         }
         else
-            throw new InvalidArgumentException("Argument 2 should be a file name or a resource of an opened file");
+            throw new \InvalidArgumentException("Argument 2 should be a file name or a resource of an opened file");
 
         $this->format($data, $file_handle);
 
@@ -88,9 +88,9 @@ abstract class DataWriter
             }
             else
             {
-                fseek($this->file_handle, 0);
-                $formatted = fread($this->file_handle, $length);
-                fclose($this->file_handle);
+                fseek($file_handle, 0);
+                $formatted = fread($file_handle, $length);
+                fclose($file_handle);
                 return $formatted;
             }
         }
