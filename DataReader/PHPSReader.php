@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace WASP\IO\DataReader;
 
 use WASP\IOException;
-use function WASP\call_error_exception;
+use ErrorException;
 
 class PHPSReader extends DataReader
 {
@@ -50,8 +50,13 @@ class PHPSReader extends DataReader
 
     public function readString(string $data)
     {
-        return call_error_exception(function () use ($data) {
+        try
+        {
             return unserialize($data);
-        });
+        }
+        catch (ErrorException $e)
+        {
+            throw new IOException($e);
+        }
     }
 }

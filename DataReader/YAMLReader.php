@@ -26,15 +26,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace WASP\IO\DataReader;
 
 use WASP\IOException;
-use function WASP\call_error_exception;
+use ErrorException;
 
 class YAMLReader extends DataReader
 {
     public function readFile(string $file_name)
     {
-        return call_error_exception(function () use ($file_name) {
-			return yaml_parse_file($file_name);
-		});
+        try
+        {
+            return yaml_parse_file($file_name);
+        }
+        catch (ErrorException $e)
+        {
+            throw new IOException($e);
+        }
     }
 
     public function readFileHandle($file_handle)
@@ -51,9 +56,14 @@ class YAMLReader extends DataReader
 
     public function readString(string $data)
     {
-        return call_error_exception(function () use ($data) {
-                return yaml_parse($data);
-		});
+        try
+        {
+            return yaml_parse($data);
+        }
+        catch (ErrorException $e)
+        {
+            throw new IOException($e);
+        }
     }
 }
 
