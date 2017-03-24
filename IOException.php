@@ -23,17 +23,7 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP;
 
-use WASP\Util\Functions as WF;
-
-class YAMLWriter extends DataWriter
-{
-    public function format($data, $file_handle)
-    {
-        // YAML is always 'pretty printed' as it relies on indentation and whitespace
-        return fwrite($file_handle, yaml_emit($data));
-    }
-}
-
-WF::check_extension('yaml', null, 'yaml_emit');
+class IOException extends \RuntimeException
+{}

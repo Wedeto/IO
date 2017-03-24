@@ -25,8 +25,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataReader;
 
-use WASP\IOException;
 use ErrorException;
+
+use WASP\Util\Functions as WF;
+use WASP\IOException;
 
 class YAMLReader extends DataReader
 {
@@ -67,4 +69,4 @@ class YAMLReader extends DataReader
     }
 }
 
-\WASP\check_extension('yaml', null, 'yaml_parse');
+WF::check_extension('yaml', null, 'yaml_parse');

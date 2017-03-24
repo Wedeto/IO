@@ -23,17 +23,22 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO\DataWriter;
+namespace WASP;
 
-use WASP\Util\Functions as WF;
+use Throwable;
 
-class YAMLWriter extends DataWriter
+class PermissionError extends IOException
 {
-    public function format($data, $file_handle)
+    public $path;
+
+    public function __construct(string $path, string $comment = "", $cause = null)
     {
-        // YAML is always 'pretty printed' as it relies on indentation and whitespace
-        return fwrite($file_handle, yaml_emit($data));
+        $msg = "Permission error on {$path}";
+        if ($comment)
+            $msg .= ": " . $comment;
+
+        $prev = $cause instanceof Throwable ? $cause : null;
+        parent::__construct($msg, 0, $prev);
+        $this->path = $path;
     }
 }
-
-WF::check_extension('yaml', null, 'yaml_emit');
