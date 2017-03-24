@@ -25,9 +25,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO;
 
-use WASP\PermissionError;
-use WASP\Debug\LoggerAwareStaticTrait;
 use Throwable;
+
+use WASP\Log\LoggerAwareStaticTrait;
 
 class File
 {

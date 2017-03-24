@@ -27,7 +27,8 @@ namespace WASP\IO;
 
 use Directory;
 use Iterator;
-use WASP\Path;
+
+use WASP\Platform\Path;
 
 /**
  * Provide some tools for creating and removing directories.

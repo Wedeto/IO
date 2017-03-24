@@ -25,7 +25,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataWriter;
 
-use WASP\Debug\Logger;
+use WASP\Log\Logger;
 
 class XMLWriter extends DataWriter
 {

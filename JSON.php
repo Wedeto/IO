@@ -25,8 +25,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP;
 
+use WASP\Util\Functions as WF;
 use WASP\Util\Encoding;
-use WASP\Http\Error as HttpError;
+use WASP\HTTP\Error as HTTPError;
+use WASP\Platform\System;
 
 /**
  * This class provides JSON-related functions. It can be used to
@@ -76,7 +78,7 @@ class JSON
     public static function printHeaders($request = null)
     {
         if ($request === null)
-            $request = Http\Request::current();
+            $request = HTTP\Request::current();
 
         $request->setHeader('Content-Type', 'application/json');
         $request->setHeader('Cache-Control', self::$cache_control);
@@ -239,8 +241,8 @@ class JSON
                 // @codeCoverageIgnoreStart
                 // The input has to be extremely weird to trigger this, so
                 // in practice it shouldn't happen.  
-                $rep = svar_dump($obj); 
-                throw new HttpError(500, "Invalid encoding: " + $rep); 
+                $rep = WF::str($obj); 
+                throw new HTTPError(500, "Invalid encoding: " + $rep); 
                 // @codeCoverageIgnoreEnd
             }
         }
