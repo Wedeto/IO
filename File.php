@@ -27,7 +27,7 @@ namespace WASP\IO;
 
 use Throwable;
 
-use WASP\Log\LoggerAwareStaticTrait;
+use WASP\Util\LoggerAwareStaticTrait;
 
 class File
 {
@@ -325,5 +325,5 @@ class File
 }
 
 // @codeCoverageIgnoreStart
-File::setLogger();
+File::getLogger();
 // @codeCoverageIgnoreEnd
