@@ -25,8 +25,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace WASP\IO\DataReader;
 
-use WASP\IOException;
 use Iterator;
+
+use WASP\IOException;
 
 /**
  * Read CSV files. This provides a direct CSV reader that converts a CSV file

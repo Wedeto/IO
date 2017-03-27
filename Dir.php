@@ -42,7 +42,7 @@ class Dir implements Iterator
      * Each rmtree'd path should have this prefix, otherwise the command is not executed.
      * @param $prefix string The prefix that should be required on each path for rmtree
      */
-    public static function setRequiredPrefix($prefix)
+    public static function setRequiredPrefix(string $prefix)
     {
         self::$required_prefix = $prefix;
     }
@@ -53,7 +53,7 @@ class Dir implements Iterator
      *
      * @param $path string The path to create
      */
-    public static function mkdir($path)
+    public static function mkdir(string $path)
     {
         $parts = explode("/", $path);
 
@@ -75,7 +75,7 @@ class Dir implements Iterator
      * @param $path string The path to remove
      * @return int Amount of files and directories that have been deleted
      */
-    public static function rmtree($path)
+    public static function rmtree(string $path)
     {
         $path = realpath($path);
         if (empty($path)) // File/dir does not exist
@@ -114,7 +114,7 @@ class Dir implements Iterator
      * be chmod'ed, it needs to be owned by someone else. This means that tests
      * would have to be run as root partially, and that would be madness.
      */
-    private static function checkWrite($path)
+    private static function checkWrite(string $path)
     {
         if (!is_writable($path) && @chmod($path, 0666) === false)
             throw new \RuntimeException("Cannot delete $path - permission denied");
@@ -132,7 +132,7 @@ class Dir implements Iterator
     const READ_FILE = 2;
     const READ_DIR = 3;
 
-    public function __construct($path, $what = Dir::READ_ALL)
+    public function __construct(string $path, int $what = Dir::READ_ALL)
     {
         $this->path = realpath($path);
         $this->dir = \dir($this->path);
