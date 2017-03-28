@@ -130,9 +130,9 @@ class DirReader implements Iterator
                 continue;
 
             $path = $this->path . '/' . $nv;
-            if ($this->read_what === Dir::READ_DIR && !is_dir($path))
+            if ($this->read_what === DirReader::READ_DIR && !is_dir($path))
                 continue;
-            elseif ($this->read_what === Dir::READ_FILE && !is_file($path))
+            elseif ($this->read_what === DirReader::READ_FILE && !is_file($path))
                 continue;
 
             $this->next_entry = $nv;

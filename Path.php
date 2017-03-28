@@ -28,6 +28,7 @@ namespace WASP\IO;
 use Throwable;
 
 use WASP\Util\LoggerAwareStaticTrait;
+use WASP\Util\Hook;
 
 /**
  * Provide some tools for creating and removing directories.
@@ -309,7 +310,7 @@ class Path
     /** 
      * The hook connecting to newly created files
      */
-    public static function hookFileCreated(array $params);
+    public static function hookFileCreated(array $params)
     {
         $f = new File($params['filename']);
         $f->setPermissions();
@@ -375,5 +376,5 @@ class Path
     }
 }
 
-Hook::subscribe("WASP.IO.FileCreated", array(Path::class, "hookFileCreated"))
-Hook::subscribe("WASP.IO.DirCreated", array(Path::class, "hookFileCreated"))
+Hook::subscribe("WASP.IO.FileCreated", array(Path::class, "hookFileCreated"));
+Hook::subscribe("WASP.IO.DirCreated", array(Path::class, "hookFileCreated"));
