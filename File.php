@@ -36,7 +36,6 @@ class File
 
     public function __construct(string $filename, $mime = null)
     {
-        self::getLogger();
         $this->path = $filename;
         $this->dir = dirname($filename);
         if ($this->dir == ".")

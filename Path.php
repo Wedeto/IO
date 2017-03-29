@@ -312,8 +312,7 @@ class Path
      */
     public static function hookFileCreated(array $params)
     {
-        $f = new File($params['filename']);
-        $f->setPermissions();
+        self::setPermissions($params['filename']);
     }
 
     /** 
@@ -322,7 +321,7 @@ class Path
      * @param int $mode The (octal) mode to set. When omitted, the default is
      *                  used.
      */
-    public function setPermissions(string $path, int $mode = null)
+    public static function setPermissions(string $path, int $mode = null)
     {
         $is_dir = is_dir($path);
 
