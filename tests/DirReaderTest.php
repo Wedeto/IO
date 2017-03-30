@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,13 +23,13 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO;
+namespace Wedeto\IO;
 
-use WASP\System;
+use Wedeto\System;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers WASP\IO\Dir
+ * @covers Wedeto\IO\Dir
  */
 final class DirTest extends TestCase
 {
@@ -40,7 +40,7 @@ final class DirTest extends TestCase
         $this->path = System::path();
         $root = $this->path->root;
         if (empty($root))
-            throw new \RuntimeException("Need a proper WASP Root");
+            throw new \RuntimeException("Need a proper Wedeto Root");
 
         Dir::setRequiredPrefix($root);
         $dir0 = $this->path->var;
@@ -72,9 +72,9 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::setRequiredPrefix
-     * @covers WASP\IO\Dir::mkdir
-     * @covers WASP\IO\Dir::rmtree
+     * @covers Wedeto\IO\Dir::setRequiredPrefix
+     * @covers Wedeto\IO\Dir::mkdir
+     * @covers Wedeto\IO\Dir::rmtree
      */
     public function testDir()
     {
@@ -128,8 +128,8 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::mkdir
-     * @covers WASP\IO\Dir::rmtree
+     * @covers Wedeto\IO\Dir::mkdir
+     * @covers Wedeto\IO\Dir::rmtree
      */
     public function testRMDirPermission()
     {
@@ -144,8 +144,8 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::mkdir
-     * @covers WASP\IO\Dir::rmtree
+     * @covers Wedeto\IO\Dir::mkdir
+     * @covers Wedeto\IO\Dir::rmtree
      */
     public function testRMFile()
     {
@@ -166,8 +166,8 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::mkdir
-     * @covers WASP\IO\Dir::rmtree
+     * @covers Wedeto\IO\Dir::mkdir
+     * @covers Wedeto\IO\Dir::rmtree
      */
     public function testRMFilePermission()
     {
@@ -186,8 +186,8 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::mkdir
-     * @covers WASP\IO\Dir::rmtree
+     * @covers Wedeto\IO\Dir::mkdir
+     * @covers Wedeto\IO\Dir::rmtree
      */
     public function testRMDirDeepPermission()
     {
@@ -203,12 +203,12 @@ final class DirTest extends TestCase
     }
 
     /**
-     * @covers WASP\IO\Dir::__construct
-     * @covers WASP\IO\Dir::current
-     * @covers WASP\IO\Dir::key
-     * @covers WASP\IO\Dir::hasNext
-     * @covers WASP\IO\Dir::next
-     * @covers WASP\IO\Dir::rewind
+     * @covers Wedeto\IO\Dir::__construct
+     * @covers Wedeto\IO\Dir::current
+     * @covers Wedeto\IO\Dir::key
+     * @covers Wedeto\IO\Dir::hasNext
+     * @covers Wedeto\IO\Dir::next
+     * @covers Wedeto\IO\Dir::rewind
      */
     public function testDirRead()
     {

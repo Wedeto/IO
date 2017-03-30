@@ -1,6 +1,6 @@
 <?php
 /*
-This is part of WASP, the Web Application Software Platform.
+This is part of Wedeto, the WEb DEvelopment TOolkit.
 It is published under the MIT Open Source License.
 
 Copyright 2017, Egbert van der Wal
@@ -23,12 +23,12 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-namespace WASP\IO;
+namespace Wedeto\IO;
 
 use Throwable;
 
-use WASP\Util\LoggerAwareStaticTrait;
-use WASP\Util\Hook;
+use Wedeto\Util\LoggerAwareStaticTrait;
+use Wedeto\Util\Hook;
 
 /**
  * Provide some tools for creating and removing directories.
@@ -65,7 +65,7 @@ class Path
     private static $dir_mode = 0770;
 
     /** 
-     * Security measure that prevents attempts of removing files outside of WASP
+     * Security measure that prevents attempts of removing files outside of Wedeto
      * Each rmtree'd path should have this prefix, otherwise the command is not executed.
      * @param $prefix string The prefix that should be required on each path for rmtree
      */
@@ -375,5 +375,5 @@ class Path
     }
 }
 
-Hook::subscribe("WASP.IO.FileCreated", array(Path::class, "hookFileCreated"));
-Hook::subscribe("WASP.IO.DirCreated", array(Path::class, "hookFileCreated"));
+Hook::subscribe("Wedeto.IO.FileCreated", array(Path::class, "hookFileCreated"));
+Hook::subscribe("Wedeto.IO.DirCreated", array(Path::class, "hookFileCreated"));
