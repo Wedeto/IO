@@ -29,6 +29,7 @@ use Throwable;
 
 use Wedeto\Util\LoggerAwareStaticTrait;
 use Wedeto\Util\Hook;
+use Wedeto\Util\Dictionary;
 
 /**
  * Provide some tools for creating and removing directories.
@@ -45,9 +46,9 @@ class Path
     const GROUP_WRITE = 0020;
     const GROUP_EXECUTE = 0010;
 
-    const WORLD_READ = 0040;
-    const WORLD_WRITE = 0020;
-    const WORLD_EXECUTE = 0010;
+    const WORLD_READ = 0004;
+    const WORLD_WRITE = 0002;
+    const WORLD_EXECUTE = 0001;
 
     /** 
      * The required prefix for removing directory trees. Must be set prior to
@@ -126,6 +127,15 @@ class Path
         }
     }
 
+    public static function realpath(string $path)
+    {
+        $url = parse_url($path);
+        if (empty($url['scheme']))
+            return realpath($path);
+
+        return file_exists($path) ? $path : false;
+    }
+
     /**
      * Delete a directory and its contents. The provided path must be inside the configured prefix.
      * @param $path string The path to remove
@@ -133,11 +143,11 @@ class Path
      */
     public static function rmtree(string $path)
     {
-        $path = realpath($path);
+        $path = self::realpath($path);
         if (empty($path)) // File/dir does not exist
             return true;
 
-        if (self::$required_prefix === null)
+        if (empty(self::$required_prefix))
             throw new \RuntimeException("Safety measure: required prefix needs to be set before running rmtree");
 
         if (strpos($path, self::$required_prefix) !== 0)
@@ -174,7 +184,7 @@ class Path
      */
     private static function checkWrite(string $path)
     {
-        if (!is_writable($path) && @chmod($path, 0666) === false)
+        if (!is_writable($path) && @chmod($path, 0777) === false)
             throw new \RuntimeException("Cannot delete $path - permission denied");
     }
 
@@ -310,9 +320,9 @@ class Path
     /** 
      * The hook connecting to newly created files
      */
-    public static function hookFileCreated(array $params)
+    public static function hookFileCreated(Dictionary $params)
     {
-        self::setPermissions($params['filename']);
+        self::setPermissions($params['path']);
     }
 
     /** 
@@ -339,7 +349,8 @@ class Path
             {
                 try
                 {
-                    @chgrp($path, $wanted_gid);
+                    @chgrp($path, self::$file_group);
+                    clearstatcache(true, $path);
                 }
                 catch (Throwable $e)
                 {
@@ -363,6 +374,7 @@ class Path
                 try
                 {
                     @chmod($path, $mode);
+                    clearstatcache(true, $path);
                 }
                 catch (Throwable $e)
                 {
@@ -375,5 +387,7 @@ class Path
     }
 }
 
+// @codeCoverageIgnoreStart
 Hook::subscribe("Wedeto.IO.FileCreated", array(Path::class, "hookFileCreated"));
 Hook::subscribe("Wedeto.IO.DirCreated", array(Path::class, "hookFileCreated"));
+// @codeCoverageIgnoreEnd

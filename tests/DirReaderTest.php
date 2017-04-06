@@ -25,190 +25,33 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\IO;
 
-use Wedeto\System;
 use PHPUnit\Framework\TestCase;
 
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
 /**
- * @covers Wedeto\IO\Dir
+ * @covers Wedeto\IO\DirReader
  */
-final class DirTest extends TestCase
+final class DirReaderTest extends TestCase
 {
     private $path;
 
     public function setUp()
     {
-        $this->path = System::path();
-        $root = $this->path->root;
-        if (empty($root))
-            throw new \RuntimeException("Need a proper Wedeto Root");
-
-        Dir::setRequiredPrefix($root);
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-        if (file_exists($dir1))
-        {
-            chmod($dir1, 0777);
-            Dir::rmtree($dir1);
-        }
-    }
-
-    public function tearDown()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-        if (!file_exists($dir1))
-            return;
-
-        $file = $dir1 . '/test.file';
-
-        chmod($dir1, 0777);
-        if (file_exists($file))
-            chmod($file, 0777);
-
-        $dir2 = $dir1 . '/test2';
-        if (is_dir($dir2))
-            chmod($dir2, 0777);
-        Dir::rmtree($dir1);
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('testdir'));
+        $this->path = vfsStream::url('testdir');
     }
 
     /**
-     * @covers Wedeto\IO\Dir::setRequiredPrefix
-     * @covers Wedeto\IO\Dir::mkdir
-     * @covers Wedeto\IO\Dir::rmtree
-     */
-    public function testDir()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-
-        $dir2 = $dir1 . '/test2';
-        Dir::setRequiredPrefix($dir2);
-        Dir::mkdir($dir2);
-
-        $this->assertTrue(file_exists($dir1));
-        $this->assertTrue(file_exists($dir2));
-        $this->assertTrue(is_dir($dir1));
-        $this->assertTrue(is_dir($dir2));
-
-        $file = $dir2 . '/test.file';
-        $fh = fopen($file, 'w');
-        fputs($fh, 'test');
-        fclose($fh);
-
-        $this->assertTrue(file_exists($file));
-
-        Dir::rmtree($dir2);
-        $this->assertFalse(file_exists($file));
-        $this->assertFalse(file_exists($dir2));
-        $this->assertTrue(file_exists($dir1));
-        $this->assertTrue(is_dir($dir1));
-
-        $success = true;
-        try
-        {
-            Dir::rmtree($dir1);
-        }
-        catch (\Throwable $e)
-        {
-            $this->assertInstanceOf(\RuntimeException::class, $e);
-            $success = false;
-        }
-
-        $this->assertFalse($success);
-
-        $this->assertTrue(file_exists($dir1));
-        $this->assertTrue(is_dir($dir1));
-
-        Dir::setRequiredPrefix($dir0);
-        Dir::rmtree($dir1);
-        $this->assertFalse(file_exists($dir1));
-        $this->assertFalse(is_dir($dir1));
-
-        Dir::rmtree($dir1);
-    }
-
-    /**
-     * @covers Wedeto\IO\Dir::mkdir
-     * @covers Wedeto\IO\Dir::rmtree
-     */
-    public function testRMDirPermission()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-
-        Dir::mkdir($dir1);
-        chmod($dir1, 000);
-
-        Dir::rmtree($dir1);
-        $this->assertFalse(file_exists($dir1));
-    }
-
-    /**
-     * @covers Wedeto\IO\Dir::mkdir
-     * @covers Wedeto\IO\Dir::rmtree
-     */
-    public function testRMFile()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-        Dir::mkdir($dir1);
-
-        $file = $dir1 . '/test.file';
-        $fh = fopen($file, 'w');
-        fputs($fh, 'test');
-        fclose($fh);
-
-        $this->assertTrue(file_exists($file));
-        Dir::rmtree($file);
-        $this->assertFalse(file_exists($file));
-        $this->assertTrue(file_exists($dir1));
-        $this->assertTrue(is_dir($dir1));
-    }
-
-    /**
-     * @covers Wedeto\IO\Dir::mkdir
-     * @covers Wedeto\IO\Dir::rmtree
-     */
-    public function testRMFilePermission()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-        Dir::mkdir($dir1);
-
-        $file = $dir1 . '/test.file';
-        $fh = fopen($file, 'w');
-        fputs($fh, 'test');
-        fclose($fh);
-        chmod($file, 0000);
-
-        Dir::rmtree($dir1);
-        $this->assertFalse(file_exists($dir1));
-    }
-
-    /**
-     * @covers Wedeto\IO\Dir::mkdir
-     * @covers Wedeto\IO\Dir::rmtree
-     */
-    public function testRMDirDeepPermission()
-    {
-        $dir0 = $this->path->var;
-        $dir1 = $dir0 . '/testdir';
-        $dir2 = $dir1 . '/test2';
-        Dir::mkdir($dir2);
-
-        chmod($dir2, 0000);
-
-        Dir::rmtree($dir1);
-        $this->assertFalse(file_exists($dir1));
-    }
-
-    /**
-     * @covers Wedeto\IO\Dir::__construct
-     * @covers Wedeto\IO\Dir::current
-     * @covers Wedeto\IO\Dir::key
-     * @covers Wedeto\IO\Dir::hasNext
-     * @covers Wedeto\IO\Dir::next
-     * @covers Wedeto\IO\Dir::rewind
+     * @covers Wedeto\IO\DirReader::__construct
+     * @covers Wedeto\IO\DirReader::current
+     * @covers Wedeto\IO\DirReader::key
+     * @covers Wedeto\IO\DirReader::hasNext
+     * @covers Wedeto\IO\DirReader::next
+     * @covers Wedeto\IO\DirReader::rewind
      */
     public function testDirRead()
     {
@@ -231,7 +74,7 @@ final class DirTest extends TestCase
         sort($file_list);
         sort($dir_list);
 
-        $dir = new Dir("/usr/lib", Dir::READ_FILE);
+        $dir = new DirReader("/usr/lib", DirReader::READ_FILE);
         $files = array();
         $iter = 0;
         foreach ($dir as $k => $f)
@@ -243,7 +86,7 @@ final class DirTest extends TestCase
         sort($files);
         $this->assertEquals($files, $file_list);
 
-        $dir = new Dir("/usr/lib", Dir::READ_DIR);
+        $dir = new DirReader("/usr/lib", DirReader::READ_DIR);
         $files = array();
         $iter = 0;
         foreach ($dir as $k => $d)
