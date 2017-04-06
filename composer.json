@@ -4,7 +4,7 @@
     "description": "Wedeto Platform - IO and file system utilities",
     "homepage": "https://wedeto.net/",
     "require": {
-        "Wedeto/Util": "@dev",
+        "Wedeto/Util": "0.9.*",
         "php": ">=7.0.0"
     },
     "autoload": {
@@ -16,12 +16,6 @@
         {
             "name": "Egbert van der Wal",
             "email": "ewal@pointpro.nl"
-        }
-    ],
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/Wedeto/Util"
         }
     ]
 }
