@@ -55,6 +55,65 @@ final class MimeTypesTest extends TestCase
 
     public function testFromFile()
     {
-        
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('testdir'));
+        $path = vfsStream::url('testdir');
+
+        $paths = [
+            $path . "/my/home/test.txt" => 'text/plain',
+            $path . '/my/path/test.csv' => 'text/csv',
+            $path . '/my/file/video.ogv' => 'video/ogg',
+            $path . '/test/file.exe' => 'application/octet-stream',
+            $path . '/test/file' => 'video/x-ms-asf'
+        ];
+
+        // The last file has no extension, so give it a PDF header to let the
+        // PHP mime recognizer recognize it.
+        mkdir($path . '/test');
+
+        // WMV header
+        $wmv_header =  chr(0x30) . chR(0x26) . chr(0xb2) . chR(0x75) . chr(0x8e)
+            . chr(0x66) . chr(0xcf) . chr(0x11) . chr(0xa6) . chr(0xd9) . chr(0x00)
+            . chr(0xaa) . chr(0x00) . chr(0x62) . chr(0xce) . chr(0x6c);
+
+        file_put_contents($path . '/test/file', $wmv_header);
+
+        foreach ($paths as $path => $resp)
+        {
+            $this->assertEquals($resp, MimeTypes::getFromFile($path));
+        }
     }
+
+    public function testGetExtension()
+    {
+        $exts = [
+            'text/html' => 'htm',
+            'application/javascript' => 'js',
+            'text/css' => 'css',
+            'application/pdf' => 'pdf'
+        ];
+
+        foreach ($exts as $mime => $ext)
+        {
+            $this->assertEquals($ext, MimeTypes::getExtension($mime));
+        }
+    }
+
+    public function testIsPlainText()
+    {
+        $mimes = [
+            'text/html' => true,
+            'text/html; charset=utf8' => true,
+            'application/javascript' => true,
+            'text/css' => true,
+            'application/pdf' => false,
+            'video/ogg' => false
+        ];
+
+        foreach ($mimes as $mime => $plain)
+        {
+            $this->assertEquals($plain, MimeTypes::isPlainText($mime));
+        }
+    }
+
 }

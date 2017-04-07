@@ -140,10 +140,8 @@ class MimeTypes
                 return $type;
         }
 
-        // @codeCoverageIgnoreStart
         // We're going to trust PHPs tests on this
         return mime_content_type($path);
-        // @codeCoverageIgnoreEnd
     }
 
     public static function getMimeFromExtension(string $ext)
