@@ -98,18 +98,7 @@ class File
     public function getMime()
     {
         if (!$this->mime)
-        {
-            $mime = null;
-            if ($this->ext === "css")
-                $mime = "text/css";
-            elseif ($this->ext == "json")
-                $mime = "application/json";
-            elseif ($this->ext == "js")
-                $mime = "application/javascript";
-
-            $mime = mime_content_type($this->path . "/" . $this->filename);
-            $this->mime = $mime;
-        }
+            $this->mime = MimeTypes::getFromFile($this->path . '/' . $this->filename);
         return $this->mime;
     }
 

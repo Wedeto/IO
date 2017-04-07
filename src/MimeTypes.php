@@ -25,12 +25,22 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\IO;
 
+/**
+ * MimeTypes lists some common Mime Types used on webpages.
+ * It can be used to determine the mime type based on file extension.
+ *
+ * When provided with a file on the file system, it can also return a proper
+ * content type - text types are recognized and served as a correct type. Without
+ * looking at file extension, these files are usually server incorrectly when
+ * using auto detection. For unknown file extensions, PHP's mime_content_type is
+ * used.
+ */
 class MimeTypes
 {
     public static $TYPES = array(
         // Common HTTP data types
         "txt"  => "text/plain",
-        "ini"  => "text/plain",
+        "ini"  => "text/ini",
         "htm"  => "text/html",
         "html" => "text/html",
         "js"   => "application/javascript",
@@ -96,6 +106,13 @@ class MimeTypes
         "multipart" => "multipart/form-data",
     );
 
+    /**
+     * Get the mime type for a filename, without resorting to
+     * mime_get_content_type
+     *
+     * @param string $path The path to get a content type for
+     * @return array (mime_type, file_extension)
+     */
     public static function extractFromPath(string $path)
     {
         $pos = strrpos($path, '.');
@@ -107,6 +124,11 @@ class MimeTypes
         return array(self::getMimeFromExtension($ext), $ext);
     }
 
+    /**
+     * Return the mime type based on a file name
+     * @param string $path The path to the file
+     * @return string The mime type for this file
+     */
     public static function getFromFile(string $path)
     {
         $pos = strrpos($path, '.');
@@ -131,31 +153,41 @@ class MimeTypes
             return self::$TYPES[$lext];
         return null;
     }
-
+    
+    /**
+     * Get the extension for a mime type
+     * @param string $mime The mime type
+     * @return string The file extension - null if unknown
+     */
     public static function getExtension(string $mime)
     {
         $ext = array_search($mime, self::$TYPES, true);
         return $ext === false ? null : $ext;
     }
 
+    /** 
+     * Check if a mime type is plain text
+     * @param string $mime The Mime type
+     * @return bool True if the mime type is plaintext, false if it isn't
+     */
     public static function isPlainText(string $mime)
     {
         $sc_pos = strpos($mime, ';');
         if ($sc_pos !== false)
             $mime = substr($mime, 0, $sc_pos);
         
+        // Some application/* types are plain text
         switch ($mime)
         {
-            case "text/plain":
-            case "text/html":
             case "application/javascript":
-            case "text/css":
-            case "text/csv":
             case "application/json":
             case "application/xml":
-            case "text/yaml":
                 return true;
         }
+
+        // Assume all text/* files to be plain text
+        if (substr($mime, 0, 5) === "text/")
+            return true;
 
         return false;
     }
