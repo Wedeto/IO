@@ -263,6 +263,15 @@ final class PathTest extends TestCase
 
         clearstatcache(true, $dir0);
         $this->assertTrue(is_writable($dir0));
+
+        // We need a non-existing filename
+        $file = tempnam(sys_get_temp_dir(), 'pathtest');
+        unlink($file);
+
+        Path::setPermissions($file);
+        $this->expectException(IOException::class);
+        $this->expectExceptionMessage("Could not stat");
+        $perms = Path::getPermissions($file);
     }
 
     public function testInvalidDir()

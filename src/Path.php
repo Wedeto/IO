@@ -194,6 +194,10 @@ class Path
      */
     public static function makeWritable(string $path)
     {
+        // If it is already writable, there's nothing to do
+        if (is_writable($path))
+            return;
+
         $perms = self::getPermissions($path);
 
         $current_user = posix_getpwuid(posix_geteuid());
@@ -201,22 +205,14 @@ class Path
         $group = posix_getgrgid(filegroup($path));
 
         $is_owner = $current_user['uid'] === $owner['uid'];
-        if ($is_owner && $perms['owner']['write'])
-            return;
 
         if (!$is_owner)
         {
-            // Check if the file is owner by a group we're in
-            $my_groups = posix_getgroups();
-            if (in_array($group['gid'], $my_groups) && $perms['group']['write'])
-                return;
-
-            // Not in the same group, check if the file is world writable
-            if ($perms['world']['write'])
-                return;
-
-            // The file is really unwritable, and we cannot change the permissions
+            // @codeCoverageIgnoreStart
+            // The file is really unwritable, and we cannot change the permissions. This
+            // is not reliably testable without root permissions.
             throw new PermissionError($path, "Cannot change permissions - not the owner");
+            // @codeCoverageIgnoreEnd
         }
 
         // We own the file, so we should be able to fix it
@@ -224,7 +220,12 @@ class Path
         if (self::$file_group !== null)
         {
             if (self::$file_group !== $group['name'] && !chgrp($path, self::$file_group))
+            {
+                // @codeCoverageIgnoreStart
+                // This is not testable - a read only file system would be needed
                 throw new PermissionError($path, "Cannot change group");
+                // @codeCoverageIgnoreEnd
+            }
             $set_gid = true;
         }
 
@@ -233,9 +234,6 @@ class Path
 
         if (is_dir($path))
             $new_mode |= self::OWNER_EXECUTE | ($set_gid ? self::GROUP_EXECUTE : 0);
-
-        if ($new_mode === $perms['mode'])
-            return;
 
         $what = is_dir($path) ? "directory" : "file";
         self::getLogger()->notice(
@@ -247,10 +245,13 @@ class Path
         {
             @chmod($path, $new_mode);
         }
+        // @codeCoverageIgnoreStart
+        // Basically untestable - we need a read-only file system for this
         catch (Throwable $e)
         {
             throw new PermissionError($path, "Could not set permissions");
         }
+        // @codeCoverageIgnoreEnd
     }
 
     /**
@@ -265,6 +266,8 @@ class Path
         try
         {
             $mode = @fileperms($path);
+            if ($mode === false)
+                throw new IOException();
         }
         catch (Throwable $e)
         {
@@ -349,15 +352,18 @@ class Path
             {
                 try
                 {
-                    @chgrp($path, self::$file_group);
+                    !@chgrp($path, self::$file_group);
                     clearstatcache(true, $path);
                 }
+                // @codeCoverageIgnoreStart
+                // Impossible to test - this would require a RO file system
                 catch (Throwable $e)
                 {
                     throw new IOException(
                         "Could not set group on " . $path . " to " . self::$file_group
                     );
                 }
+                // @codeCoverageIgnoreEnd
             }
         }
         
@@ -376,12 +382,15 @@ class Path
                     @chmod($path, $mode);
                     clearstatcache(true, $path);
                 }
+                // @codeCoverageIgnoreStart
+                // Impossible to test - this would require a RO file system
                 catch (Throwable $e)
                 {
                     throw new IOException(
                         "Could not set mode on " . $path . " to " . $mode
                     );
                 }
+                // @codeCoverageIgnoreEnd
             }
         }
     }

@@ -149,12 +149,4 @@ class DirReader implements Iterator
     {
         return !empty($this->cur_entry);
     }
-
-    /**
-     * Set the permissions on the current directory
-     */
-    public function setPermissions()
-    {
-        return Path::setPermissions($this->path);
-    }
 }
