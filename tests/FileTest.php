@@ -53,6 +53,43 @@ final class FileTest extends TestCase
         $this->assertEquals('footest-2.txt', $a->addSuffix('-2'));
         $this->assertEquals('application/json', $a->getMime());
         $this->assertEquals('footest.dat', $a->setExt('dat'));
+
+        $a = new File('footest', 'application/xml');
+        $this->assertEquals('footest', $a->getPath());
+        $this->assertEmpty($a->getDir());
+        $this->assertEquals('footest', $a->getBaseName());
+        $this->assertEquals('footest', $a->getFilename());
+        $this->assertEmpty($a->getExt());
+        $this->assertEquals('footest-2', $a->addSuffix('-2'));
+        $this->assertEquals('application/xml', $a->getMime());
+        $this->assertEquals('footest.dat', $a->setExt('dat'));
+    }
+
+    public function testPermissions()
+    {
+        $path = __DIR__ . '/var/file.json';
+        try
+        {
+            
+            touch($path);
+            $this->assertTrue(is_writable($path));
+            chmod($path, 0400);
+            $this->assertFalse(is_writable($path));
+            $f = new File($path);
+            $f->touch();
+
+            $this->assertTrue(is_writable($path));
+
+            chmod($path, 0400);
+            $this->assertFalse(is_writable($path));
+
+            $f->setPermissions();
+            $this->assertTrue(is_writable($path));
+        }
+        finally
+        {
+            unlink($path);
+        }
     }
 
 }

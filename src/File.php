@@ -115,9 +115,14 @@ class File
      */
     public function addSuffix($suffix)
     {
+        $file = $this->basename . $suffix;
+        if (!empty($this->ext))
+            $file .= "." . $this->ext;
+
         if ($this->dir)
-            return $this->dir . "/" . $this->basename . $suffix . "." . $this->ext;
-        return $this->basename . $suffix . "." . $this->ext;
+            return $this->dir . "/" . $file;
+
+        return $file;
     }
 
     /**
