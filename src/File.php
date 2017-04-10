@@ -156,4 +156,33 @@ class File
     {
         Path::setPermissions($this->path);
     }
+
+    /**
+     * Open the file for reading or writing, throwing informative
+     * exceptions when it fails.
+     *
+     * @param string $mode The file opening mode
+     * @return resource The opened file resource
+     * @throws IOException When opening the file failed.
+     * @seealso fopen
+     */
+    public function open(string $mode)
+    {
+        $read = strpbrk($mode, "r+") !== false;
+        $write = strpbrk($mode, "waxc+") !== false;
+        $x = strpbrk($mode, "x") !== false;
+
+        $fh = @fopen($this->path, $mode);
+        if (is_resource($fh))
+            return $fh;
+
+        if ($x && file_exists($this->path))
+            throw new IOException("File already exists: " . $this->path);
+        if ($write && !is_writable($this->path))
+            throw new IOException("File is not writable: " . $this->path);
+        if ($read && !is_readable($this->path))
+            throw new IOException("File is not readable: " . $this->path);
+
+        throw new IOException("Invalid mode for opening file: " . $mode);
+    }
 }

@@ -27,6 +27,10 @@ namespace Wedeto\IO;
 
 use PHPUnit\Framework\TestCase;
 
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamWrapper;
+use org\bovigo\vfs\vfsStreamDirectory;
+
 /**
  * @covers Wedeto\IO\File
  */
@@ -70,7 +74,6 @@ final class FileTest extends TestCase
         $path = __DIR__ . '/var/file.json';
         try
         {
-            
             touch($path);
             $this->assertTrue(is_writable($path));
             chmod($path, 0400);
@@ -91,5 +94,76 @@ final class FileTest extends TestCase
             unlink($path);
         }
     }
+    
+    public function testOpen()
+    {
+        vfsStreamWrapper::register();
+        vfsStreamWrapper::setRoot(new vfsStreamDirectory('testdir'));
+        $this->path = vfsStream::url('testdir');
+        
+        $f = new File($this->path . '/test1.dat');
+        $f->touch();
+        $fh = $f->open('r');
+        $this->assertTrue(is_resource($fh));
+        fclose($fh);
 
+        $f = new File($this->path . '/test2.dat');
+        $fh = $f->open('w');
+        $this->assertTrue(is_resource($fh));
+        fclose($fh);
+
+        $f = new File($this->path . '/tests3.dat');
+        try
+        {
+            $fh = $f->open('r');
+        }
+        catch (IOException $e)
+        {
+            $this->assertContains('File is not readable', $e->getMessage());
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        $thrown = false;
+        $f = new File($this->path . '/tests4.dat');
+        $f->touch();
+        chmod($f->getPath(), 0400);
+        try
+        {
+            $fh = $f->open('w');
+        }
+        catch (IOException $e)
+        {
+            $this->assertContains('File is not writable', $e->getMessage());
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        $thrown = false;
+        $f = new File($this->path . '/tests5.dat');
+        $f->touch();
+        try
+        {
+            $fh = $f->open('x');
+        }
+        catch (IOException $e)
+        {
+            $this->assertContains('File already exists', $e->getMessage());
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+
+        $thrown = false;
+        $f = new File($this->path . '/tests6.dat');
+        try
+        {
+            $fh = $f->open('bl');
+        }
+        catch (IOException $e)
+        {
+            $this->assertContains('Invalid mode for opening file: bl', $e->getMessage());
+            $thrown = true;
+        }
+        $this->assertTrue($thrown);
+    }
 }
