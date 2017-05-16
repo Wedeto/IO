@@ -66,7 +66,7 @@ class DirReader implements Iterator
      */
     public function __construct(string $path, int $what = DirReader::READ_ALL)
     {
-        $this->path = realpath($path);
+        $this->path = Path::realpath($path);
         $this->dir = \dir($this->path);
         $this->read_what = $what;
     }
