@@ -32,9 +32,9 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
 /**
- * @covers Wedeto\IO\MimeTypes
+ * @covers Wedeto\IO\FileType
  */
-final class MimeTypesTest extends TestCase
+final class FileTypeTest extends TestCase
 {
     public function testExtractFromPath()
     {
@@ -49,7 +49,9 @@ final class MimeTypesTest extends TestCase
 
         foreach ($paths as $path => $resp)
         {
-            $this->assertEquals($resp, MimeTypes::extractFromPath($path));
+            $type = FileType::getFromFile($path);
+            $this->assertEquals($resp[0], $type->getMimeType());
+            $this->assertEquals($resp[1], $type->getExt());
         }
     }
 
@@ -80,22 +82,24 @@ final class MimeTypesTest extends TestCase
 
         foreach ($paths as $path => $resp)
         {
-            $this->assertEquals($resp, MimeTypes::getFromFile($path));
+            $type = FileType::getFromFile($path);
+            $this->assertEquals($resp, $type->getMimeType());
         }
     }
 
     public function testGetExtension()
     {
         $exts = [
-            'text/html' => 'htm',
-            'application/javascript' => 'js',
-            'text/css' => 'css',
-            'application/pdf' => 'pdf'
+            'text/html' => '.htm',
+            'application/javascript' => '.js',
+            'text/css' => '.css',
+            'application/pdf' => '.pdf'
         ];
 
         foreach ($exts as $mime => $ext)
         {
-            $this->assertEquals($ext, MimeTypes::getExtension($mime));
+            $type = new FileType("", $mime);
+            $this->assertEquals($ext, $type->getExt());
         }
     }
 
@@ -112,7 +116,8 @@ final class MimeTypesTest extends TestCase
 
         foreach ($mimes as $mime => $plain)
         {
-            $this->assertEquals($plain, MimeTypes::isPlainText($mime));
+            $type = new FileType("", $mime);
+            $this->assertEquals($plain, $type->isPlainText($mime));
         }
     }
 

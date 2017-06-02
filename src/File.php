@@ -98,7 +98,10 @@ class File
     public function getMime()
     {
         if (!$this->mime)
-            $this->mime = MimeTypes::getFromFile($this->path . '/' . $this->filename);
+        {
+            $type = FileType::getFromFile($this->path . '/' . $this->filename);
+            $this->mime = $type->getMimeType();
+        }
         return $this->mime;
     }
 

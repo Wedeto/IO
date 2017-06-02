@@ -26,7 +26,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace Wedeto\IO;
 
 /**
- * MimeTypes lists some common Mime Types used on webpages.
+ * FileType lists some common file types used on webpages.
  * It can be used to determine the mime type based on file extension.
  *
  * When provided with a file on the file system, it can also return a proper
@@ -35,7 +35,7 @@ namespace Wedeto\IO;
  * using auto detection. For unknown file extensions, PHP's mime_content_type is
  * used.
  */
-class MimeTypes
+class FileType
 {
     public static $TYPES = array(
         // Common HTTP data types
@@ -107,49 +107,33 @@ class MimeTypes
     );
 
     /**
-     * Get the mime type for a filename, without resorting to
-     * mime_get_content_type
-     *
-     * @param string $path The path to get a content type for
-     * @return array (mime_type, file_extension)
+     * Return the mime type based on a file name
+     * @param string $path The path to the file
+     * @return FileType The File Type for this file
      */
-    public static function extractFromPath(string $path)
+    public static function getFromFile($path)
     {
-        $pos = strrpos($path, '.');
-        $type = null;
-        if ($pos === false)
-            return array(null, null);
+        if (!($path instanceof File))
+            $path = new File($path);
 
-        $ext = substr($path, $pos); 
-        return array(self::getMimeFromExtension($ext), $ext);
+        $ext = $path->getExt();
+        $path = $path->getPath();
+
+        $type = new FileType($ext ?? "", "");
+        if (empty($type->getMimeType()) && file_exists($path))
+            $type->setMimeType(mime_content_type($path));
+
+        return $type;
     }
 
     /**
-     * Return the mime type based on a file name
-     * @param string $path The path to the file
-     * @return string The mime type for this file
+     * Get the File Type based on the extension
+     * @param string $ext The extension
+     * @return FileType The file type object
      */
-    public static function getFromFile(string $path)
+    public static function getFromExtension(string $ext)
     {
-        $pos = strrpos($path, '.');
-        if ($pos !== false)
-        {
-            $ext = substr($path, $pos + 1);
-            $type = self::getMimeFromExtension($ext);
-            if ($type)
-                return $type;
-        }
-
-        // We're going to trust PHPs tests on this
-        return mime_content_type($path);
-    }
-
-    public static function getMimeFromExtension(string $ext)
-    {
-        $lext = strtolower(ltrim($ext, '.'));
-        if (isset(self::$TYPES[$lext]))
-            return self::$TYPES[$lext];
-        return null;
+        return new FileType("", $ext);
     }
     
     /**
@@ -159,8 +143,41 @@ class MimeTypes
      */
     public static function getExtension(string $mime)
     {
-        $ext = array_search($mime, self::$TYPES, true);
-        return $ext === false ? null : $ext;
+        $type = new FileType("", $mime);
+        return $type->getExt();
+    }
+
+
+    /** The mime type */
+    protected $mime_type = null;
+
+    /** The file extension */
+    protected $ext = null;
+
+    /**
+     * Create the File Type using a extension and a mime type.
+     * @param string $ext The file extension. May be omitted if mime type is known
+     * @param string $mime_type The mime type. May be omitted if ext is known
+     */
+    public function __construct(string $ext, string $mime_type)
+    {
+        $mime_type = strtolower($mime_type);
+        $ext = ltrim(strtolower($ext), '.');
+
+        if (empty($ext))
+        {
+            if ($key = array_search($mime_type, self::$TYPES))
+                $ext = $key;
+        }
+
+        if (empty($mime_type))
+        {
+            if (isset(self::$TYPES[$ext]))
+                $mime_type = self::$TYPES[$ext];
+        }
+
+        $this->mime_type = empty($mime_type) ? null : $mime_type;
+        $this->ext = empty($ext) ? null : '.' . $ext;
     }
 
     /** 
@@ -168,14 +185,16 @@ class MimeTypes
      * @param string $mime The Mime type
      * @return bool True if the mime type is plaintext, false if it isn't
      */
-    public static function isPlainText(string $mime)
+    public function isPlainText()
     {
-        $sc_pos = strpos($mime, ';');
+        $sc_pos = strpos($this->mime_type, ';');
         if ($sc_pos !== false)
-            $mime = substr($mime, 0, $sc_pos);
+            $mime_type = substr($this->mime_type, 0, $sc_pos);
+        else
+            $mime_type = $this->mime_type;
         
         // Some application/* types are plain text
-        switch ($mime)
+        switch ($mime_type)
         {
             case "application/javascript":
             case "application/json":
@@ -184,9 +203,46 @@ class MimeTypes
         }
 
         // Assume all text/* files to be plain text
-        if (substr($mime, 0, 5) === "text/")
-            return true;
+        return substr($mime_type, 0, 5) === "text/";
+    }
 
-        return false;
+    /**
+     * @return string The mime type for this file type
+     */
+    public function getMimeType()
+    {
+        return $this->mime_type;
+    }
+
+    /**
+     * Set the mime type
+     * @param string $mime_type The type to set
+     * @throws InvalidArgumentException When mime type is not valid
+     * @return FileType Provides fluent interface
+     */
+    public function setMimeType(string $mime_type)
+    {
+        if (!preg_match('/^[\w_-]+\/[\w_-]+$/', $mime_type))
+            throw new InvalidArgumentException("Not a valid mime type: $mime_type");
+        $this->mime_type = $mime_type;
+        return $this;
+    }
+
+    /**
+     * @return string The file extension
+     */
+    public function getExt()
+    {
+        return $this->ext;
+    }
+
+    /**
+     * Set the extension for the file type
+     * @return FileType Provides fluent interface
+     */
+    public function setExt(string $ext)
+    {
+        $this->ext = $ext;
+        return $this;
     }
 }
