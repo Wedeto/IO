@@ -77,8 +77,8 @@ final class PathTest extends TestCase
         Path::setRequiredPrefix($dir2);
         Path::mkdir($dir2);
 
-        $this->assertTrue(file_exists($dir1));
-        $this->assertTrue(file_exists($dir2));
+        $this->assertTrue(file_exists($dir1), "$dir1 should exist");
+        $this->assertTrue(file_exists($dir2), "$dir2 should exist");
         $this->assertTrue(is_dir($dir1));
         $this->assertTrue(is_dir($dir2));
 

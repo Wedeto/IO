@@ -113,9 +113,12 @@ class Path
      */
     public static function mkdir(string $path)
     {
+        $uri = parse_url($path);
+        $path = $uri['path'];
         $parts = explode("/", $path);
 
-        $path = "";
+        $path = isset($uri['scheme']) ? $uri['scheme'] . '://' . $uri['host'] . '/' : '';
+
         foreach ($parts as $p)
         {
             $path .= $p . '/';
