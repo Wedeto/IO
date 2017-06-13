@@ -100,6 +100,39 @@ final class FileTypeTest extends TestCase
         {
             $type = new FileType("", $mime);
             $this->assertEquals($ext, $type->getExt());
+
+            $this->assertEquals($ext, FileType::getExtension($mime));
+            $this->assertSame($type, $type->setExt('foo'));
+            $this->assertEquals('foo', $type->getExt());
+        }
+    }
+
+    public function testGetFromExtension()
+    {
+        $exts = [
+            'htm' => 'text/html',
+            '.js' => 'application/javascript',
+            'css' => 'text/css'
+        ];
+
+        foreach ($exts as $ext => $mime)
+        {
+            $type = FileType::getFromExtension($ext);
+            $this->assertEquals($mime, $type->getMimeType());
+
+            $this->assertSame($type, $type->setMimeType('foo/bar'));
+
+            $thrown = false;
+            try
+            {
+                $type->setMimeType('foobar');
+            }
+            catch (\InvalidArgumentException $e)
+            {
+                $this->assertContains('Not a valid mime type: foobar', $e->getMessage());
+                $thrown = true;
+            }
+            $this->assertTrue($thrown);
         }
     }
 

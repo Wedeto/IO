@@ -133,7 +133,7 @@ class FileType
      */
     public static function getFromExtension(string $ext)
     {
-        return new FileType("", $ext);
+        return new FileType($ext, "");
     }
     
     /**
@@ -223,7 +223,7 @@ class FileType
     public function setMimeType(string $mime_type)
     {
         if (!preg_match('/^[\w_-]+\/[\w_-]+$/', $mime_type))
-            throw new InvalidArgumentException("Not a valid mime type: $mime_type");
+            throw new \InvalidArgumentException("Not a valid mime type: $mime_type");
         $this->mime_type = $mime_type;
         return $this;
     }

@@ -61,6 +61,10 @@ final class PathTest extends TestCase
             Path::makeWritable($rd);
             Path::rmtree($rd);
         }
+
+        Path::setDefaultFileGroup();
+        Path::setDefaultFileMode(0660);
+        Path::setDefaultDirMode(0770);
     }
 
     /**
@@ -216,6 +220,7 @@ final class PathTest extends TestCase
         foreach ($groups as $gr)
         {
             Path::setDefaultFileGroup($gr);
+            $this->assertEquals($gr, Path::getDefaultFileGroup());
             Hook::execute("Wedeto.IO.DirCreated", ['path' => $dir0]);
 
             $st = stat($dir0);
@@ -228,6 +233,7 @@ final class PathTest extends TestCase
         foreach ([0777, 0770, 0500, 0700] as $mode)
         {
             Path::setDefaultDirMode($mode);
+            $this->assertEquals($mode, Path::getDefaultDirMode());
             Hook::execute("Wedeto.IO.DirCreated", ['path' => $dir0]);
 
             $perms = Path::getPermissions($dir0);
@@ -239,6 +245,7 @@ final class PathTest extends TestCase
         foreach ($groups as $gr)
         {
             Path::setDefaultFileGroup($gr);
+            $this->assertEquals($gr, Path::getDefaultFileGroup());
             Hook::execute("Wedeto.IO.FileCreated", ['path' => $file]);
 
             $st = stat($file);
@@ -251,6 +258,7 @@ final class PathTest extends TestCase
         foreach ([0777, 0770, 0700, 0500] as $mode)
         {
             Path::setDefaultFileMode($mode);
+            $this->assertEquals($mode, Path::getDefaultFileMode());
             Hook::execute("Wedeto.IO.FileCreated", ['path' => $file]);
 
             $perms = Path::getPermissions($file);

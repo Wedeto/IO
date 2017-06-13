@@ -79,9 +79,17 @@ class Path
      * Set the default file group for files, when setPermissions is called
      * @param string $group The group name
      */
-    public static function setDefaultFileGroup(string $group)
+    public static function setDefaultFileGroup(string $group = null)
     {
         self::$file_group = $group;
+    }
+
+    /**
+     * @return string The default group for files
+     */
+    public static function getDefaultFileGroup()
+    {
+        return self::$file_group;
     }
 
     /**
@@ -95,6 +103,14 @@ class Path
     }
 
     /**
+     * @return int The default file mode
+     */
+    public static function getDefaultFileMode()
+    {
+        return self::$file_mode;
+    }
+
+    /**
      * Set the default file mode for directories, when setPermissions is called
      * or when a new directory is created.
      * @param int $mode The octal file mode
@@ -103,7 +119,14 @@ class Path
     {
         self::$dir_mode = $mode;
     }
-    
+
+    /**
+     * @return int The default dir mode
+     */
+    public static function getDefaultDirMode()
+    {
+        return self::$dir_mode;
+    }
 
     /**
      * Make a directory and its parents. When all directories already exist, nothing happens.
