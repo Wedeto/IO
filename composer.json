@@ -4,7 +4,7 @@
     "description": "Wedeto Platform - IO and file system utilities",
     "homepage": "https://wedeto.net/",
     "require": {
-        "Wedeto/Util": "0.9.*",
+        "Wedeto/Util": ">=0.9.9",
         "php": ">=7.0.0"
     },
     "require-dev": {
@@ -14,6 +14,9 @@
         "psr-4": {
             "Wedeto\\IO\\": "src/"
         }
+    },
+    "archive": {
+        "exclude": ["/tests","/phpunit.xml"]
     },
     "authors": [
         {
