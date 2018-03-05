@@ -116,8 +116,8 @@ class FileType
         if (!($path instanceof File))
             $path = new File($path);
 
-        $ext = $path->getExt();
-        $path = $path->getPath();
+        $ext = $path->getExtension();
+        $path = $path->getFullPath();
 
         $type = new FileType($ext ?? "", "");
         if (empty($type->getMimeType()) && file_exists($path))

@@ -39,34 +39,34 @@ final class FileTest extends TestCase
     public function testFile()
     {
         $a = new File('/foo/bar/test.txt');
-        $this->assertEquals('/foo/bar/test.txt', $a->getPath());
+        $this->assertEquals('/foo/bar/test.txt', $a->getFullPath());
         $this->assertEquals('/foo/bar', $a->getDir());
-        $this->assertEquals('test', $a->getBaseName());
+        $this->assertEquals('test', $a->getBasename());
         $this->assertEquals('test.txt', $a->getFilename());
-        $this->assertEquals('txt', $a->getExt());
-        $this->assertEquals('/foo/bar/test-2.txt', $a->addSuffix('-2'));
+        $this->assertEquals('txt', $a->getExtension());
+        $this->assertEquals('/foo/bar/test-2.txt', $a->withSuffix('-2'));
         $this->assertEquals('text/plain', $a->getMime());
-        $this->assertEquals('/foo/bar/test.dat', $a->setExt('dat'));
+        $this->assertEquals('/foo/bar/test.dat', $a->withExtension('dat'));
 
         $a = new File('footest.txt', 'application/json');
-        $this->assertEquals('footest.txt', $a->getPath());
+        $this->assertEquals('footest.txt', $a->getFullPath());
         $this->assertEmpty($a->getDir());
-        $this->assertEquals('footest', $a->getBaseName());
+        $this->assertEquals('footest', $a->getBasename());
         $this->assertEquals('footest.txt', $a->getFilename());
-        $this->assertEquals('txt', $a->getExt());
-        $this->assertEquals('footest-2.txt', $a->addSuffix('-2'));
+        $this->assertEquals('txt', $a->getExtension());
+        $this->assertEquals('footest-2.txt', $a->withSuffix('-2'));
         $this->assertEquals('application/json', $a->getMime());
-        $this->assertEquals('footest.dat', $a->setExt('dat'));
+        $this->assertEquals('footest.dat', $a->withExtension('dat'));
 
         $a = new File('footest', 'application/xml');
-        $this->assertEquals('footest', $a->getPath());
+        $this->assertEquals('footest', $a->getFullPath());
         $this->assertEmpty($a->getDir());
-        $this->assertEquals('footest', $a->getBaseName());
+        $this->assertEquals('footest', $a->getBasename());
         $this->assertEquals('footest', $a->getFilename());
-        $this->assertEmpty($a->getExt());
-        $this->assertEquals('footest-2', $a->addSuffix('-2'));
+        $this->assertEmpty($a->getExtension());
+        $this->assertEquals('footest-2', $a->withSuffix('-2'));
         $this->assertEquals('application/xml', $a->getMime());
-        $this->assertEquals('footest.dat', $a->setExt('dat'));
+        $this->assertEquals('footest.dat', $a->withExtension('dat'));
     }
 
     public function testPermissions()
@@ -127,7 +127,7 @@ final class FileTest extends TestCase
         $thrown = false;
         $f = new File($this->path . '/tests4.dat');
         $f->touch();
-        chmod($f->getPath(), 0400);
+        chmod($f->getFullPath(), 0400);
         try
         {
             $fh = $f->open('w');

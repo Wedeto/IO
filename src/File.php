@@ -25,37 +25,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace Wedeto\IO;
 
-class File
+/**
+ * A class providing information about a file. Subclasses SplFileInfo,
+ * providing additional functions such as mime types, permission updates
+ * and meaningful file open errors.
+ */
+class File extends \SplFileInfo
 {
-    private $dir;
-    private $path;
-    private $filename;
-    private $basename;
-    private $ext;
-    private $mime;
+    protected $mime;
 
     public function __construct(string $filename, $mime = null)
     {
-        $this->path = $filename;
-        $this->dir = dirname($filename);
-        if ($this->dir == ".")
-            $this->dir = "";
-
-        $this->filename = $filename = basename($filename);
+        parent::__construct($filename);
         if (!empty($mime))
             $this->mime = $mime;
-        $extpos = strrpos($filename, ".");
-
-        if ($extpos !== false)
-        {
-            $this->ext = strtolower(substr($filename, $extpos + 1));
-            $this->basename = substr($filename, 0, $extpos);
-        }
-        else
-        {
-            $this->basename = $this->filename;
-            $this->ext = null;
-        }
     }
 
     /**
@@ -64,32 +47,35 @@ class File
     public function touch()
     {
         // Check permissions
-        if (file_exists($this->path))
+        $path = $this->getFullPath();
+        if (file_exists($path))
         {
-            if (!is_writable($this->path))
-                Path::makeWritable($this->path);
+            if (!is_writable($path))
+                Path::makeWritable($path);
         }
 
-        touch($this->path);
-        Path::setPermissions($this->path);
+        touch($path);
+        Path::setPermissions($path);
     }
 
     /**
-     * @return string The file extension
+     * @return string The file extension, lowercased
      */
-    public function getExt()
+    public function getExtension()
     {
-        return $this->ext;
+        return strtolower(parent::getExtension());
     }
 
     /**
      * @return string the file name with a different file extension
      */
-    public function setExt($ext)
+    public function withExtension($ext)
     {
-        if ($this->dir)
-            return $this->dir . "/" . $this->basename . "." . $ext;
-        return $this->basename . "." . $ext;
+        $dir = $this->getDir();
+        $base = $this->getBasename();
+        if (!empty($dir))
+            return $dir . "/" . $base . "." . $ext;
+        return $base . "." . $ext;
     }
 
     /**
@@ -99,41 +85,45 @@ class File
     {
         if (!$this->mime)
         {
-            $type = FileType::getFromFile($this->path . '/' . $this->filename);
+            $type = FileType::getFromFile($this->getFullPath());
             $this->mime = $type->getMimeType();
         }
         return $this->mime;
     }
 
     /**
-     * @return string the path to this file
-     */
-    public function getPath()
-    {
-        return $this->path;
-    }
-
-    /**
      * @return string The file name with a suffix added before the extension
      */
-    public function addSuffix($suffix)
+    public function withSuffix($suffix)
     {
-        $file = $this->basename . $suffix;
-        if (!empty($this->ext))
-            $file .= "." . $this->ext;
+        $file = $this->getBasename() . $suffix;
+        $ext = $this->getExtension();
+        if (!empty($ext))
+            $file .= "." . $ext;
 
-        if ($this->dir)
-            return $this->dir . "/" . $file;
+        $dir = $this->getDir();
+        if (!empty($dir))
+            return $dir . "/" . $file;
 
         return $file;
     }
 
     /**
-     * @return string the filename without the directory
+     * Get the path to the file
      */
-    public function getFilename()
+    public function getFullPath()
     {
-        return $this->filename; 
+        return $this->getPathname();
+    }
+
+    public function getBasename($suffix = null)
+    {
+        if ($suffix === null)
+        {
+            $ext = parent::getExtension();
+            $suffix = !empty($ext) ? "." . $ext : null;
+        }
+        return parent::getBasename($suffix);
     }
 
     /**
@@ -141,23 +131,15 @@ class File
      */
     public function getDir()
     {
-        return $this->dir;
+        return parent::getPath();
     }
     
-    /**
-     * @return string The filename without the extension
-     */
-    public function getBaseName()
-    {
-        return $this->basename;
-    }
-
     /**
      * Set the permissions to the default values
      */
     public function setPermissions()
     {
-        Path::setPermissions($this->path);
+        Path::setPermissions($this->getFullPath());
     }
 
     /**
@@ -175,16 +157,17 @@ class File
         $write = strpbrk($mode, "waxc+") !== false;
         $x = strpbrk($mode, "x") !== false;
 
-        $fh = @fopen($this->path, $mode);
+        $path = $this->getFullPath();
+        $fh = @fopen($path, $mode);
         if (is_resource($fh))
             return $fh;
 
-        if ($x && file_exists($this->path))
-            throw new IOException("File already exists: " . $this->path);
-        if ($write && !is_writable($this->path))
-            throw new IOException("File is not writable: " . $this->path);
-        if ($read && !is_readable($this->path))
-            throw new IOException("File is not readable: " . $this->path);
+        if ($x && file_exists($path))
+            throw new IOException("File already exists: " . $path);
+        if ($write && !is_writable($path))
+            throw new IOException("File is not writable: " . $path);
+        if ($read && !is_readable($path))
+            throw new IOException("File is not readable: " . $path);
 
         throw new IOException("Invalid mode for opening file: " . $mode);
     }

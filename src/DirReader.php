@@ -28,7 +28,7 @@ namespace Wedeto\IO;
 use Iterator;
 
 /**
- * Read directory contents
+ * Read directory contents, providing filtering on files r directories
  */
 class DirReader implements Iterator
 {
