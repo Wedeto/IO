@@ -136,20 +136,9 @@ class Path
      */
     public static function mkdir(string $path)
     {
-        $uri = parse_url($path);
-        $path = $uri['path'];
-        $parts = explode("/", $path);
-
-        $path = isset($uri['scheme']) ? $uri['scheme'] . '://' . $uri['host'] . '/' : '';
-
-        foreach ($parts as $p)
+        if (!is_dir($path))
         {
-            $path .= $p . '/';
-            if (!is_dir($path))
-            {
-                mkdir($path);
-                self::setPermissions($path);
-            }
+            mkdir($path, self::$dir_mode, true);
         }
     }
 
