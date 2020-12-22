@@ -4,7 +4,7 @@
     "description": "Wedeto Platform - IO and file system utilities",
     "homepage": "https://wedeto.net/",
     "require": {
-        "wedeto/util": "~1.0.0-beta1",
+        "wedeto/util": "~1.0.0",
         "php": ">=7.0.0"
     },
     "require-dev": {
