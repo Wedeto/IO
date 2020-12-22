@@ -4,11 +4,11 @@
     "description": "Wedeto Platform - IO and file system utilities",
     "homepage": "https://wedeto.net/",
     "require": {
-        "Wedeto/Util": "~1.0.0-beta1",
+        "wedeto/util": "~1.0.0-beta1",
         "php": ">=7.0.0"
     },
     "require-dev": {
-        "mikey179/vfsStream": "~1"
+        "mikey179/vfsstream": "~1"
     },
     "autoload": {
         "psr-4": {
